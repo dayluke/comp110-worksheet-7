@@ -24,11 +24,49 @@ namespace comp110_worksheet_7
 		// Return the total size, in bytes, of all the files below the given directory
 		public static long GetTotalSize(string directory)
 		{
-			throw new NotImplementedException();
+
+            if (IsDirectory(directory))
+            {
+                List<string> files = System.IO.Directory.GetFiles(directory).ToList<string>();
+                List<string> dirs = System.IO.Directory.GetDirectories(directory).ToList<string>();
+
+                foreach (string dir in dirs)
+                {
+                    ProcessDirectory(dir);
+                }
+            }
+
+            return 0;
+            //throw new NotImplementedException();
 		}
 
-		// Return the number of files (not counting directories) below the given directory
-		public static int CountFiles(string directory)
+        // Process all files in the directory passed in, recurse on any directories 
+        // that are found, and process the files they contain.
+        public static void ProcessDirectory(string dir)
+        {
+            Console.WriteLine("Processed directory '{0}'.", dir);
+
+            // Process the list of files found in the directory.
+            string[] files = Directory.GetFiles(dir);
+            foreach (string fileName in files)
+                ProcessFile(fileName);
+
+            // Recurse into subdirectories of this directory.
+            string[] subDirectories = Directory.GetDirectories(dir);
+            foreach (string subdir in subDirectories)
+                ProcessDirectory(subdir);
+        }
+
+        public static void ProcessFile(string path)
+        {
+            Console.Write("Processed file '{0}'.", path);
+            FileInfo f = new FileInfo(path);
+            Console.Write("File size: {0} bytes.", f.Length);
+            Console.WriteLine();
+        }
+
+        // Return the number of files (not counting directories) below the given directory
+        public static int CountFiles(string directory)
 		{
 			throw new NotImplementedException();
 		}
