@@ -9,6 +9,7 @@ namespace comp110_worksheet_7
 {
 	public static class DirectoryUtils
 	{
+        static long totalFileSize = 0;
 		// Return the size, in bytes, of the given file
 		public static long GetFileSize(string filePath)
 		{
@@ -24,7 +25,6 @@ namespace comp110_worksheet_7
 		// Return the total size, in bytes, of all the files below the given directory
 		public static long GetTotalSize(string directory)
 		{
-            long totalSize = 0;
             if (IsDirectory(directory))
             {
                 List<string> files = System.IO.Directory.GetFiles(directory).ToList<string>();
@@ -32,30 +32,31 @@ namespace comp110_worksheet_7
 
                 foreach (string dir in dirs)
                 {
-                    totalSize += ProcessDirectory(dir);
+                    ProcessDirectory(dir);
+                    Console.WriteLine("TOTAL SIZE:: {0}", totalFileSize);
                 }
             }
 
-            return totalSize;
+            return totalFileSize;
 		}
 
         // Process all files in the directory passed in, recurse on any directories 
         // that are found, and process the files they contain.
-        public static long ProcessDirectory(string dir, long byteSize = 0)
+        public static long ProcessDirectory(string dir)
         {
             Console.WriteLine("Processed directory '{0}'.", dir);
 
             // Process the list of files found in the directory.
             string[] files = Directory.GetFiles(dir);
             foreach (string fileName in files)
-                byteSize += ProcessFile(fileName);
+                totalFileSize += ProcessFile(fileName);
 
             // Recurse into subdirectories of this directory.
             string[] subDirectories = Directory.GetDirectories(dir);
             foreach (string subdir in subDirectories)
-                ProcessDirectory(subdir, byteSize);
+                ProcessDirectory(subdir);
 
-            return byteSize;
+            return totalFileSize;
         }
 
         public static long ProcessFile(string path)
