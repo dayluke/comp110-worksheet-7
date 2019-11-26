@@ -11,9 +11,9 @@ namespace comp110_worksheet_7_tests
 	[TestFixture]
 	public class UnitTest1
 	{
-		const string c_baseDirectory = "comp110-worksheet-7-tests/pixelcarpack_kenney/PNG";
+        string c_baseDirectory { get { return Path.Combine(TestContext.CurrentContext.TestDirectory, "..", "..", "pixelcarpack_kenney", "PNG"); } }
 
-		[Test]
+        [Test]
 		public void TestBaseDirectoryExists()
 		{
 			// This test exists only to ensure that the base directory exists
