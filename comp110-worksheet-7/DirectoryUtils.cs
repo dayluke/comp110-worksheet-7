@@ -9,29 +9,26 @@ namespace comp110_worksheet_7
 {
     public static class DirectoryUtils
     {
+        //private List<FileInformation> fileinfos = new List<FileInformation>();
         private static int depthCount = 0;
-
-        private static List<FileInformation> fileinfos = new List<FileInformation>();
+        public static FileArray fileinfos;
         
         /// <summary>
-        /// Utilisies the FileInformation custom class that I created.
-        /// This methods searches through all the directories and sub-
-        /// directories and adds all of the files it finds to the list
-        /// 'fileinfos'. This list is used in most methods to easily
-        /// return the correct answer, such as the number of files.
+        /// Utilisies the FileInformation and FileArray custom classes
+        /// that I created. This methods checks if the 'fileinfos'
+        /// instance of the FileArry class is equal to null (e.g. it is
+        /// empty and has not been set yet). If it is null, then it calls
+        /// the constructor class in the FileArry class - assigning all
+        /// the files found to the public array in the class.
+        /// the number of files.
         /// </summary>
         /// <param name="path"></param>
         public static void SetFileInformation(string path)
         {
-            // Process the list of files found in the directory.
-            string[] files = Directory.GetFiles(path);
-            foreach (string fileName in files)
-                fileinfos.Add(new FileInformation(fileName, GetFileSize(fileName)));
-
-            // Recurse into subdirectories of this directory.
-            string[] subDirectories = Directory.GetDirectories(path);
-            foreach (string subdir in subDirectories)
-                SetFileInformation(subdir);
+            if (fileinfos == null)
+            {
+                fileinfos = new FileArray(path);
+            }
         }
 
         // Return the size, in bytes, of the given file
@@ -51,7 +48,7 @@ namespace comp110_worksheet_7
         {
             long count = 0;
             SetFileInformation(directory);
-            foreach (FileInformation file in fileinfos)
+            foreach (FileInformation file in fileinfos.fileList)
             {
                 Console.WriteLine("FILE:: {0}, SIZE:: {1}", file.filepath, file.filesize);
                 count += file.filesize;
@@ -64,7 +61,7 @@ namespace comp110_worksheet_7
         public static int CountFiles(string directory)
         {
             SetFileInformation(directory);
-            return fileinfos.Count;
+            return fileinfos.fileList.Count;
         }
 
         // Return the nesting depth of the given directory. A directory containing only files (no subdirectories) has a depth of 0.
@@ -86,7 +83,7 @@ namespace comp110_worksheet_7
         {
             SetFileInformation(directory);
             Tuple<string, long> smallestFile = new Tuple<string, long>("", 10000);
-            foreach (FileInformation file in fileinfos)
+            foreach (FileInformation file in fileinfos.fileList)
             {
                 if (file.filesize < smallestFile.Item2)
                 {
@@ -102,7 +99,7 @@ namespace comp110_worksheet_7
         {
             SetFileInformation(directory);
             Tuple<string, long> largestFile = new Tuple<string, long>("", 0);
-            foreach (FileInformation file in fileinfos)
+            foreach (FileInformation file in fileinfos.fileList)
             {
                 if (file.filesize > largestFile.Item2)
                 {
@@ -118,7 +115,7 @@ namespace comp110_worksheet_7
             SetFileInformation(directory);
             List<string> matchingFileSizes = new List<string>();
 
-            foreach (FileInformation file in fileinfos)
+            foreach (FileInformation file in fileinfos.fileList)
             {
                 if (file.filesize == size && !matchingFileSizes.Contains(file.filepath))
                 {
@@ -131,15 +128,41 @@ namespace comp110_worksheet_7
 
     }
 
+    // Stores the path and size of a file.
     public class FileInformation
     {
         public string filepath;
         public long filesize;
 
+        // Constructor used to set the public variables of the file.
         public FileInformation(string path, long size)
         {
             filepath = path;
             filesize = size;
         }
     }
+
+    public class FileArray
+    {
+        public List<FileInformation> fileList = new List<FileInformation>();
+
+        // Constructor simply calls the SetFileList to add all of the files into the 'fileList'.
+        public FileArray(string path)
+        {
+            SetFileList(path);
+        }
+
+        private void SetFileList(string path)
+        {
+            string[] files = Directory.GetFiles(path);
+            foreach (string fileName in files)
+                // Adds the file found to the fileList list.
+                fileList.Add(new FileInformation(fileName, new FileInfo(fileName).Length));
+
+            string[] subDirectories = Directory.GetDirectories(path);
+            foreach (string subdir in subDirectories)
+                SetFileList(subdir); // Recursives into sub-directories.
+        }
+    }
+
 }
